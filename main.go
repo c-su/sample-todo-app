@@ -2,98 +2,25 @@ package main
 
 import (
 	"strconv"
+	dbaccessor "work/app/db-accessor"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
-
-	_ "github.com/mattn/go-sqlite3"
 )
-
-type Todo struct {
-	gorm.Model
-	Text   string
-	Status string
-}
-
-func dbInsert(text string, status string) {
-	db, err := gorm.Open("sqlite3", "test.sqlite3")
-	if err != nil {
-		panic("データベース開けず!")
-	}
-	db.Create(&Todo{Text: text, Status: status})
-	defer db.Close()
-}
-
-func dbUpdate(id int, text string, status string) {
-	db, err := gorm.Open("sqlite3", "test.sqlite3")
-	if err != nil {
-		panic("データベース開けず!")
-	}
-	var todo Todo
-	db.First(&todo, id)
-	todo.Text = text
-	todo.Status = status
-	db.Save(&todo)
-	db.Close()
-}
-
-func dbGetAll() []Todo {
-	db, err := gorm.Open("sqlite3", "test.sqlite3")
-	if err != nil {
-		panic("データベース開けず!")
-	}
-	var todos []Todo
-	db.Order("created_at desc").Find(&todos)
-	db.Close()
-	return todos
-}
-
-func dbGetOne(id int) Todo {
-	db, err := gorm.Open("sqlite3", "test.sqlite3")
-	if err != nil {
-		panic("データベース開けず!")
-	}
-	var todo Todo
-	db.First(&todo, id)
-	db.Close()
-	return todo
-}
-
-func dbDelete(id int) {
-	db, err := gorm.Open("sqlite3", "test.sqlite3")
-	if err != nil {
-		panic("データベース開けず!")
-	}
-	var todo Todo
-	db.First(&todo, id)
-	db.Delete(&todo)
-	db.Close()
-}
-
-func dbInit() {
-	db, err := gorm.Open("sqlite3", "test.sqlite3")
-	if err != nil {
-		panic("データベース開けず!")
-	}
-	db.AutoMigrate(&Todo{})
-	defer db.Close()
-}
 
 func main() {
 	router := gin.Default()
-	router.LoadHTMLGlob("templates/*.html")
-
-	dbInit()
+	router.LoadHTMLGlob("app/templates/*.html")
+	dbaccessor.DbInit()
 
 	router.GET("/hello", func(ctx *gin.Context) {
-		todos := dbGetAll()
+		todos := dbaccessor.DbGetAll()
 		ctx.HTML(200, "index.html", gin.H{
 			"todos": todos,
 		})
 	})
 
 	router.GET("/", func(ctx *gin.Context) {
-		todos := dbGetAll()
+		todos := dbaccessor.DbGetAll()
 		ctx.HTML(200, "index.html", gin.H{
 			"todos": todos,
 		})
@@ -102,7 +29,7 @@ func main() {
 	router.POST("/new", func(ctx *gin.Context) {
 		text := ctx.PostForm("text")
 		status := ctx.PostForm("status")
-		dbInsert(text, status)
+		dbaccessor.DbInsert(text, status)
 		ctx.Redirect(302, "/")
 	})
 
@@ -112,7 +39,7 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		todo := dbGetOne(id)
+		todo := dbaccessor.DbGetOne(id)
 		ctx.HTML(200, "detail.html", gin.H{"todo": todo})
 	})
 
@@ -124,7 +51,7 @@ func main() {
 		}
 		text := ctx.PostForm("text")
 		status := ctx.PostForm("status")
-		dbUpdate(id, text, status)
+		dbaccessor.DbUpdate(id, text, status)
 		ctx.Redirect(302, "/")
 	})
 
@@ -134,7 +61,7 @@ func main() {
 		if err != nil {
 			panic("ERROR")
 		}
-		todo := dbGetOne(id)
+		todo := dbaccessor.DbGetOne(id)
 		ctx.HTML(200, "delete.html", gin.H{"todo": todo})
 	})
 
@@ -144,7 +71,7 @@ func main() {
 		if err != nil {
 			panic("ERROR")
 		}
-		dbDelete(id)
+		dbaccessor.DbDelete(id)
 		ctx.Redirect(302, "/")
 	})
 
