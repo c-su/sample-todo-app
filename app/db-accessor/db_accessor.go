@@ -14,22 +14,23 @@ type Todo struct {
 	Status string
 }
 
-// DbInsert はデータを挿入する
-func DbInsert(text string, status string) {
+func DbOpen() *gorm.DB {
 	db, err := gorm.Open("sqlite3", "test.sqlite3")
 	if err != nil {
 		panic("データベース開けず!")
 	}
+	db.LogMode(true)
+	return db
+}
+
+// DbInsert はデータを挿入する
+func DbInsert(db *gorm.DB, text string, status string) {
 	db.Create(&Todo{Text: text, Status: status})
 	defer db.Close()
 }
 
 // DbUpdate はデータを更新する
-func DbUpdate(id int, text string, status string) {
-	db, err := gorm.Open("sqlite3", "test.sqlite3")
-	if err != nil {
-		panic("データベース開けず!")
-	}
+func DbUpdate(db *gorm.DB, id int, text string, status string) {
 	var todo Todo
 	db.First(&todo, id)
 	todo.Text = text
@@ -39,11 +40,7 @@ func DbUpdate(id int, text string, status string) {
 }
 
 // DbGetAll はデータをすべて取得する
-func DbGetAll() []Todo {
-	db, err := gorm.Open("sqlite3", "test.sqlite3")
-	if err != nil {
-		panic("データベース開けず!")
-	}
+func DbGetAll(db *gorm.DB) []Todo {
 	var todos []Todo
 	db.Order("created_at desc").Find(&todos)
 	db.Close()
@@ -51,11 +48,7 @@ func DbGetAll() []Todo {
 }
 
 // DbGetOne は指定したIDのデータを取り出す
-func DbGetOne(id int) Todo {
-	db, err := gorm.Open("sqlite3", "test.sqlite3")
-	if err != nil {
-		panic("データベース開けず!")
-	}
+func DbGetOne(db *gorm.DB, id int) Todo {
 	var todo Todo
 	db.First(&todo, id)
 	db.Close()
@@ -63,11 +56,7 @@ func DbGetOne(id int) Todo {
 }
 
 // DbDelete は指定したIDのデータを削除する
-func DbDelete(id int) {
-	db, err := gorm.Open("sqlite3", "test.sqlite3")
-	if err != nil {
-		panic("データベース開けず!")
-	}
+func DbDelete(db *gorm.DB, id int) {
 	var todo Todo
 	db.First(&todo, id)
 	db.Delete(&todo)
@@ -75,11 +64,7 @@ func DbDelete(id int) {
 }
 
 // DbInit はデータベースを初期化する
-func DbInit() {
-	db, err := gorm.Open("sqlite3", "test.sqlite3")
-	if err != nil {
-		panic("データベース開けず!")
-	}
+func DbInit(db *gorm.DB) {
 	db.AutoMigrate(&Todo{})
 	defer db.Close()
 }

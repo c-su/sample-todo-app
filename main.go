@@ -10,17 +10,17 @@ import (
 func main() {
 	router := gin.Default()
 	router.LoadHTMLGlob("app/templates/*.html")
-	dbaccessor.DbInit()
+	dbaccessor.DbInit(dbaccessor.DbOpen())
 
 	router.GET("/hello", func(ctx *gin.Context) {
-		todos := dbaccessor.DbGetAll()
+		todos := dbaccessor.DbGetAll(dbaccessor.DbOpen())
 		ctx.HTML(200, "index.html", gin.H{
 			"todos": todos,
 		})
 	})
 
 	router.GET("/", func(ctx *gin.Context) {
-		todos := dbaccessor.DbGetAll()
+		todos := dbaccessor.DbGetAll(dbaccessor.DbOpen())
 		ctx.HTML(200, "index.html", gin.H{
 			"todos": todos,
 		})
@@ -29,7 +29,7 @@ func main() {
 	router.POST("/new", func(ctx *gin.Context) {
 		text := ctx.PostForm("text")
 		status := ctx.PostForm("status")
-		dbaccessor.DbInsert(text, status)
+		dbaccessor.DbInsert(dbaccessor.DbOpen(), text, status)
 		ctx.Redirect(302, "/")
 	})
 
@@ -39,7 +39,7 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		todo := dbaccessor.DbGetOne(id)
+		todo := dbaccessor.DbGetOne(dbaccessor.DbOpen(), id)
 		ctx.HTML(200, "detail.html", gin.H{"todo": todo})
 	})
 
@@ -51,7 +51,7 @@ func main() {
 		}
 		text := ctx.PostForm("text")
 		status := ctx.PostForm("status")
-		dbaccessor.DbUpdate(id, text, status)
+		dbaccessor.DbUpdate(dbaccessor.DbOpen(), id, text, status)
 		ctx.Redirect(302, "/")
 	})
 
@@ -61,7 +61,7 @@ func main() {
 		if err != nil {
 			panic("ERROR")
 		}
-		todo := dbaccessor.DbGetOne(id)
+		todo := dbaccessor.DbGetOne(dbaccessor.DbOpen(), id)
 		ctx.HTML(200, "delete.html", gin.H{"todo": todo})
 	})
 
@@ -71,7 +71,7 @@ func main() {
 		if err != nil {
 			panic("ERROR")
 		}
-		dbaccessor.DbDelete(id)
+		dbaccessor.DbDelete(dbaccessor.DbOpen(), id)
 		ctx.Redirect(302, "/")
 	})
 
