@@ -4,8 +4,8 @@ After=network.target
 
 [Service]
 Type=simple
-WorkingDirectory=/home/ec2-user
-ExecStart=/home/ec2-user/main
+WorkingDirectory=/home/ec2-user/sample-todo-app
+ExecStart=/home/ec2-user/sample-todo-app/main
 Restart = always
 
 [Install]
