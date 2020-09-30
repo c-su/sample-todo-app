@@ -1,12 +1,5 @@
 #!/bin/sh
 
-# yumのアップデート
-sudo yum -y update
-
-# git インストール
-sudo yum -y install git
-git version
-
 # Nginx インストール
 sudo amazon-linux-extras install nginx1
 sudo cp -a /etc/nginx/nginx.conf /etc/nginx/nginx.conf.back
