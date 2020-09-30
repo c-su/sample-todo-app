@@ -1,0 +1,12 @@
+[Unit]
+Description=Sample Todo App
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/ec2-user
+ExecStart=/home/ec2-user/main
+Restart = always
+
+[Install]
+WantedBy=multi-user.target

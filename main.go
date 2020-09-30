@@ -2,8 +2,8 @@ package main
 
 import (
 	"strconv"
-	dbaccessor "work/app/db-accessor"
 
+	dbaccessor "./app/db-accessor"
 	"github.com/gin-gonic/gin"
 )
 
